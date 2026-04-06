@@ -1,4 +1,4 @@
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
