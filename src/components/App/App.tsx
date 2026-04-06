@@ -27,10 +27,10 @@ function App() {
   });
 
   useEffect(() => {
-    if (isSuccess && data?.results?.length === 0) {
-      toast.error("Not fims with thise query");
+    if (isSuccess && query !== "" && data && data.results.length === 0) {
+      toast.error("No films found with this query");
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data, query]);
 
   console.log(data);
 
