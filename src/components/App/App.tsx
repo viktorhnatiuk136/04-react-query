@@ -1,6 +1,7 @@
-import { Toaster } from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import "./App.module.css";
 import SearchBar from "../SearchBar/SearchBar";
@@ -15,21 +16,27 @@ import type { Movie } from "../../types/movie";
 
 function App() {
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["movies", query, page],
-    queryFn: () => fetchMovies(query, page),
+  const { data, isLoading, isError, isSuccess } = useQuery({
+    queryKey: ["movies", query, currentPage],
+    queryFn: () => fetchMovies(query, currentPage),
     enabled: query !== "",
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    if (isSuccess && data?.results?.length === 0) {
+      toast.error("Not fims with thise query");
+    }
+  }, [isSuccess, data]);
 
   console.log(data);
 
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
-    setPage(1);
+    setCurrentPage(1);
   };
 
   const handleSelect = (movie: Movie) => {
@@ -42,10 +49,14 @@ function App() {
     <>
       <Toaster />
       <SearchBar onSubmit={handleSearch} />
-      {isLoading && <Loader />}
+      {query && isLoading && <Loader />}
       {isError && !isLoading && <ErrorMessage />}
       {!isLoading && !isError && totalPages > 1 && (
-        <Pagination page={page} setPage={setPage} totalPages={totalPages} />
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
       )}
       {!isLoading && !isError && (data?.results?.length ?? 0) > 0 && (
         <MovieGrid movies={data?.results ?? []} onSelect={handleSelect} />
