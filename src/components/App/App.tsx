@@ -9,19 +9,19 @@ import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import MovieModal from "../MovieModal/MovieModal";
-import Pagination from "../ReactPaginate/ReactPaginate";
+import Paginate from "../ReactPaginate/Paginate";
 import { fetchMovies } from "../../services/movieService";
 
 import type { Movie } from "../../types/movie";
 
 function App() {
   const [query, setQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const { data, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["movies", query, currentPage],
-    queryFn: () => fetchMovies(query, currentPage),
+    queryKey: ["movies", query, page],
+    queryFn: () => fetchMovies(query, page),
     enabled: query !== "",
     placeholderData: keepPreviousData,
   });
@@ -36,7 +36,7 @@ function App() {
 
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
-    setCurrentPage(1);
+    setPage(1);
   };
 
   const handleSelect = (movie: Movie) => {
@@ -52,11 +52,7 @@ function App() {
       {query && isLoading && <Loader />}
       {isError && !isLoading && <ErrorMessage />}
       {!isLoading && !isError && totalPages > 1 && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+        <Paginate totalPages={totalPages} page={page} setPage={setPage} />
       )}
       {!isLoading && !isError && (data?.results?.length ?? 0) > 0 && (
         <MovieGrid movies={data?.results ?? []} onSelect={handleSelect} />
